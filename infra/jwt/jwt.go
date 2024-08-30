@@ -2,10 +2,23 @@ package jwt
 
 import (
     "github.com/dgrijalva/jwt-go"
+    "os"
     "time"
 )
 
-const secretKey = "your_secret_key"
+var secretKey string
+
+func InitializeJWT() {
+    secretKey = getSecretKey()
+}
+
+func getSecretKey() string {
+    key := os.Getenv("JWT_SECRET_KEY")
+    if key == "" {
+        panic("JWT_SECRET_KEY environment variable is not set")
+    }
+    return key
+}
 
 type JWTService interface {
     GenerateToken(userID int) (string, error)
