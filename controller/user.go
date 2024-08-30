@@ -1,23 +1,28 @@
 package controller
 
 import (
-    "net/http"
-    "github.com/gin-gonic/gin"
-    "golang-api/domain"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	// "golang-api/domain"
+	"golang-api/infra/db"
 )
 
 type UserController struct {
-    DBService db.DBService
+	DBService db.DBService
 }
 
 func NewUserController(dbService db.DBService) *UserController {
-    return &UserController{DBService: dbService}
+	return &UserController{DBService: dbService}
 }
 
 func (c *UserController) GetUser(ctx *gin.Context) {
-    userID := ctx.Param("id")
+	userID := ctx.Param("id")
 
-    // Lógica para obter o usuário do banco de dados
-    user := domain.User{ID: 1, Username: "example"}
-    ctx.JSON(http.StatusOK, user)
+	user, err := c.DBService.GetUserByID(userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
 }
